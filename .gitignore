@@ -1,0 +1,6 @@
+venv/
+*.env
+.txt
+__pycache__
+data/
+dags/ref.py
