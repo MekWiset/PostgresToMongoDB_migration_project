@@ -1,9 +1,13 @@
 import pandas as pd
 import numpy as np
 
+from plugins.utils.timestamp_manager import timestampManager
+
+timestamp_path = 'data/timestamp.txt'
+tsmanager = timestampManager(timestamp_path)
 
 def get_hospital_xlsx(file_path: str) -> pd.DataFrame:
-
+    '''Load and transform hospital data from an Excel file.'''
     df_hospital = pd.read_excel(file_path)
 
     columns_to_drop = ['PROVCODE', 'BED', 'NAME', 'TYPECODE', 'TOTAL']
@@ -15,7 +19,7 @@ def get_hospital_xlsx(file_path: str) -> pd.DataFrame:
 
 
 def calculate_budgetyear(df_to_transform: pd.DataFrame, date_col: str, budgetyear_col: str) -> pd.DataFrame:
-
+    '''Calculate budget year based on date column.'''
     def get_budgetyear(date):
         if pd.isnull(date):
             return np.nan
@@ -36,7 +40,7 @@ def calculate_budgetyear(df_to_transform: pd.DataFrame, date_col: str, budgetyea
     return df_to_transform
 
 def calculate_contractfirstdate(date_col: str) -> pd.DataFrame:
-
+    '''Convert contract first date to Buddhist year format.'''
     try:
         date = pd.to_datetime(date_col)
         if pd.notnull(date) and isinstance(date, pd.Timestamp):
@@ -49,6 +53,7 @@ def calculate_contractfirstdate(date_col: str) -> pd.DataFrame:
         return np.nan
     
 def location_flag_identifier(row, df_col: pd.DataFrame) -> str:
+    '''Identify location flag based on latitude and longitude.'''
     if 'LAT' in df_col.columns and 'LON' in df_col.columns:
         if pd.notnull(row['LAT']) and pd.notnull(row['LON']):
             return '1'
@@ -56,10 +61,12 @@ def location_flag_identifier(row, df_col: pd.DataFrame) -> str:
 
     
 def final_transformation(medq_path: str, hospital_path: str, output_path: str) -> None:
-
+    '''Perform final transformation and save to CSV.'''
     df_medq = pd.read_csv(medq_path)
+    df_medq_newdata = tsmanager.compare_timestamp(lastexe_df=df_medq, lastexe_col='lastUpdate')
+
     df_hospital = get_hospital_xlsx(file_path=hospital_path)
-    df_transformed = pd.merge(df_medq, df_hospital, left_on = 'hospitalCode', right_on = 'MAINCODE', how = 'left', indicator = False)
+    df_transformed = pd.merge(df_medq_newdata, df_hospital, left_on = 'hospitalCode', right_on = 'MAINCODE', how = 'left', indicator = False)
 
     df_transformed['budgetYear'] = df_transformed['budgetYear'].apply(calculate_budgetyear).astype(str)
     df_transformed['contractFirstDate'] = df_transformed['contractFirstDate'].apply(calculate_contractfirstdate).astype(str)
