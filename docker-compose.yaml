@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14.0
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - airflow.env
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./data:/opt/airflow/data
+      - ./plugins:/opt/airflow/plugins
+    depends_on:
+      - postgres
+      - scheduler
+    ports:
+      - "8080:8080"
+    command: webserver
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - airflow.env
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./datasets:/opt/airflow/datasets
+      - ./output:/opt/airflow/output
+      - ./plugins:/opt/airflow/plugins
+    depends_on:
+      - postgres
+    command: bash -c "airflow db upgrade && airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin && airflow scheduler"
+
+volumes:
+  postgres_data:
