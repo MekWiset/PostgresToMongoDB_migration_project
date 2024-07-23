@@ -6,6 +6,7 @@ from plugins.utils.timestamp_manager import timestampManager
 timestamp_path = 'data/timestamp.txt'
 tsmanager = timestampManager(timestamp_path)
 
+
 def get_hospital_xlsx(file_path: str) -> pd.DataFrame:
     '''Load and transform hospital data from an Excel file.'''
     df_hospital = pd.read_excel(file_path)
@@ -39,6 +40,7 @@ def calculate_budgetyear(df_to_transform: pd.DataFrame, date_col: str, budgetyea
 
     return df_to_transform
 
+
 def calculate_contractfirstdate(date_col: str) -> pd.DataFrame:
     '''Convert contract first date to Buddhist year format.'''
     try:
@@ -52,6 +54,7 @@ def calculate_contractfirstdate(date_col: str) -> pd.DataFrame:
     except Exception as e:
         return np.nan
     
+
 def location_flag_identifier(row, df_col: pd.DataFrame) -> str:
     '''Identify location flag based on latitude and longitude.'''
     if 'LAT' in df_col.columns and 'LON' in df_col.columns:
