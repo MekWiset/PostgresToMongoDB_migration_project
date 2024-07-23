@@ -5,6 +5,19 @@ class timestampManager:
 
     '''
     Manage timestamp files for data processing.
+
+    Args:
+        timestamp_path (str): Path to the timestamp file.
+
+    Methods:
+        read_timestamp() -> datetime:
+            Read and return the timestamp from the file.
+
+        compare_timestamp(lastexe_df: pd.DataFrame, lastexe_col: str) -> pd.DataFrame: 
+            Return DataFrame with data newer than the stored timestamp.
+            
+        update_timestamp() -> None:
+            Update the timestamp file with the current time.
     '''
 
     def __init__(self, timestamp_path):

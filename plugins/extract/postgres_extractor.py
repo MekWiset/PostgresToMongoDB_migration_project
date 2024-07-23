@@ -8,7 +8,7 @@ from dags.helpers.sql_query import MEDQ_QUERY
 
 
 def extract_postgres(pg_conn: dict, query: str, output_path: str) -> None:
-
+    '''Extract MedQ data from Postgres database through API using psycopg2'''
     conn = psycopg2.connect(**pg_conn)
     
     query = query
